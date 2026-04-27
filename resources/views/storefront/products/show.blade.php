@@ -1,60 +1,160 @@
 @extends('layouts.app')
 
-@section('title', $product->name." - L'ESSENCE")
+@section('title', $product->name ? "{$product->name} - L'ESSENCE" : "Product Detail - L'ESSENCE")
 
 @section('content')
-    {{-- TEAM NOTE: Halaman ini masih DUMMY untuk validasi layout storefront. --}}
-    {{-- PAGE PURPOSE: Menampilkan detail produk (gambar, varian, deskripsi, metadata) sebelum flow cart/checkout final. --}}
-    @php
-        $primaryImage = $product->images->first();
-        $cheapestVariant = $product->variants->sortBy('price')->first();
-    @endphp
-
-    <section class="pt-40 pb-24 px-6 md:px-12">
-        <div class="max-w-6xl mx-auto mb-6 border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
-            <strong>DUMMY PAGE:</strong> Ini placeholder halaman detail produk. Tim silakan lengkapi CTA add-to-cart, rekomendasi, review, dan tracking event.
-        </div>
-
-        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div class="bg-white border border-gray-100 overflow-hidden">
-                <div class="aspect-[4/5] bg-gray-100">
-                    @if($primaryImage)
-                        <img src="{{ $primaryImage->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+@if (!isset($product) || !$product)
+    <div class="pt-40 pb-32 px-6 text-center">
+        <h1 class="text-4xl font-serif mb-8">Fragrance Not Found</h1>
+        <a href="{{ route('products.index') }}" class="luxury-button inline-block">Back to Catalog</a>
+    </div>
+@else
+    <div class="pt-20 lg:pt-20 min-h-screen bg-luxury-cream overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-2 min-h-[calc(100vh-80px)]">
+            <div class="bg-luxury-nude flex items-center justify-center p-8 lg:p-24 relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10 pattern-dots"></div>
+                <div class="w-full max-w-lg aspect-[4/5] bg-luxury-charcoal relative shadow-2xl flex flex-col p-10 items-center justify-center group overflow-hidden">
+                    @if ($product->images->isNotEmpty())
+                        <img
+                            src="{{ asset('storage/' . $product->images->first()->image_url) }}"
+                            alt="{{ $product->name }}"
+                            class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700"
+                        />
                     @else
-                        <div class="w-full h-full flex items-center justify-center text-gray-400 text-xs uppercase tracking-widest">No Image</div>
+                        <div class="absolute inset-0 bg-gray-100 flex items-center justify-center text-sm text-gray-500">
+                            No Image Available
+                        </div>
                     @endif
+
+                    <div class="relative z-10 text-center">
+                        <div class="text-luxury-gold font-serif text-5xl mb-4 italic tracking-widest uppercase">
+                            {{ $product->brand->name ?? 'Unknown Brand' }}
+                        </div>
+                        <div class="h-px w-20 bg-luxury-gold mb-6 mx-auto opacity-50"></div>
+                        <div class="text-[10px] tracking-[0.5em] text-luxury-gold/70 uppercase">Artisanal Blend</div>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <p class="text-[10px] uppercase tracking-[0.3em] text-[var(--color-secondary)] font-bold">{{ $product->brand?->name ?? 'L\'Essence' }}</p>
-                <h1 class="mt-3 text-4xl font-serif text-[var(--color-primary)]">{{ $product->name }}</h1>
-                <p class="mt-4 text-base text-[var(--color-accent)]/70 leading-relaxed">{{ $product->description ?: 'A refined fragrance composition designed for timeless elegance.' }}</p>
+            <div class="p-8 lg:p-24 flex flex-col justify-center space-y-12 animate-fade-in">
+                <a href="{{ route('products.index') }}" class="text-[10px] uppercase tracking-widest text-luxury-gold flex items-center group transition-colors hover:text-luxury-charcoal">
+                    <span class="mr-3 transition-transform group-hover:-translate-x-1">←</span>
+                    Back to Collection
+                </a>
 
-                <div class="mt-6 text-sm text-[var(--color-accent)]/80 space-y-2">
-                    <p><span class="font-semibold">Category:</span> {{ $product->category?->name ?? '-' }}</p>
-                    <p><span class="font-semibold">Starting Price:</span> {{ $cheapestVariant ? 'Rp '.number_format((float) $cheapestVariant->price, 0, ',', '.') : '-' }}</p>
-                    <p><span class="font-semibold">Scents:</span> {{ $product->scents->pluck('name')->join(', ') ?: '-' }}</p>
-                </div>
-
-                @if($product->variants->isNotEmpty())
-                    <div class="mt-8 border border-gray-100 bg-white">
-                        <div class="px-5 py-3 border-b border-gray-100 text-[10px] uppercase tracking-[0.2em] font-bold text-gray-500">Available Variants</div>
-                        <div class="divide-y divide-gray-100">
-                            @foreach($product->variants as $variant)
-                                <div class="px-5 py-3 flex items-center justify-between">
-                                    <p class="text-sm text-[var(--color-primary)]">{{ $variant->name }}</p>
-                                    <p class="text-sm font-semibold text-[var(--color-primary)]">Rp {{ number_format((float) $variant->price, 0, ',', '.') }}</p>
-                                </div>
-                            @endforeach
+                <div class="space-y-6">
+                    <div class="space-y-4">
+                        <h1 class="text-5xl md:text-7xl font-serif font-light leading-tight">{{ $product->name }}</h1>
+                        <div class="flex items-center space-x-4">
+                            <p class="text-2xl text-luxury-gold font-light font-mono tracking-tighter">
+                                ${{ number_format($product->variants->first()->price ?? 0, 0, '.', ',') }}.00
+                            </p>
+                            <span class="text-[10px] uppercase tracking-[0.3em] text-luxury-charcoal/30 font-medium">Eau de Parfum</span>
                         </div>
                     </div>
-                @endif
 
-                <div class="mt-8">
-                    <a href="{{ route('products.index') }}" class="inline-flex items-center px-6 py-3 text-[10px] uppercase tracking-[0.25em] font-bold border border-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-colors">Back to Collections</a>
+                    <div class="space-y-2">
+                        <p class="text-[10px] uppercase tracking-[0.2em] text-luxury-gold font-bold">The Scent Profile</p>
+                        <p class="text-sm text-luxury-charcoal/60 leading-relaxed max-w-md font-light italic">
+                            "{{ $product->description }}"
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-4 pt-4 border-t border-luxury-gold/10">
+                        <p class="w-full text-[10px] uppercase tracking-[0.2em] text-luxury-charcoal/40 mb-2">Olfactory Notes</p>
+                        @if ($product->scents->isNotEmpty())
+                            @foreach ($product->scents as $scent)
+                                <span class="text-[9px] uppercase tracking-[0.2em] px-4 py-2 bg-luxury-clay/30 text-luxury-charcoal/60 rounded-sm">
+                                    {{ $scent->name }}
+                                </span>
+                            @endforeach
+                        @else
+                            <span class="text-[9px] uppercase tracking-[0.2em] px-4 py-2 bg-luxury-clay/30 text-luxury-charcoal/60 rounded-sm">
+                                No scent notes available
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="space-y-10 max-w-md">
+                    <div>
+                        <p class="text-[10px] uppercase tracking-[0.3em] text-luxury-charcoal/40 font-medium mb-4">Select Volume</p>
+                        <div class="flex space-x-4">
+                            <button class="px-6 py-3 text-[10px] tracking-widest border border-luxury-charcoal bg-luxury-charcoal text-white">50ML</button>
+                            <button class="px-6 py-3 text-[10px] tracking-widest border border-luxury-charcoal/20 text-luxury-charcoal hover:border-luxury-gold">100ML</button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-6">
+                        <div class="flex items-center border border-luxury-charcoal/10 bg-white">
+                            <button class="p-4 hover:bg-luxury-gold hover:text-white transition-colors" type="button">-</button>
+                            <span class="w-12 text-center text-xs font-mono font-bold tracking-widest">1</span>
+                            <button class="p-4 hover:bg-luxury-gold hover:text-white transition-colors" type="button">+</button>
+                        </div>
+                        <button class="flex-1 py-6 border border-luxury-charcoal bg-luxury-charcoal text-white text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-luxury-gold hover:border-luxury-gold transition-all duration-500 shadow-xl">
+                            Add to Shopping Bag
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 pt-8 border-t border-luxury-gold/10">
+                        <div class="text-center p-4">
+                            <p class="text-[9px] uppercase tracking-widest text-luxury-charcoal/40 mb-1">Shipping</p>
+                            <p class="text-[10px] uppercase tracking-tighter">Worldwide</p>
+                        </div>
+                        <div class="text-center p-4 border-l border-luxury-gold/10">
+                            <p class="text-[9px] uppercase tracking-widest text-luxury-charcoal/40 mb-1">Authenticity</p>
+                            <p class="text-[10px] uppercase tracking-tighter">100% Certified</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+
+        <section class="px-6 lg:px-24 pb-24">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex items-center justify-between mb-12">
+                    <div>
+                        <p class="text-[9px] uppercase tracking-[0.5em] text-luxury-gold font-bold">Related Products</p>
+                        <h2 class="text-4xl font-serif font-light">You may also like</h2>
+                    </div>
+                    <a href="{{ route('products.index') }}" class="text-[10px] uppercase tracking-[0.3em] font-bold text-luxury-charcoal hover:text-luxury-gold transition-colors">
+                        View All
+                    </a>
+                </div>
+
+                @if ($relatedProducts->count())
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+                        @foreach ($relatedProducts as $related)
+                            <a href="{{ route('products.show', $related) }}" class="group block">
+                                <div class="relative aspect-[4/5] bg-white flex items-center justify-center p-10 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.2)] transition-all duration-700 border border-luxury-gold/5 group-hover:border-luxury-gold/20">
+                                    @if ($related->images->isNotEmpty())
+                                        <img
+                                            src="{{ asset('storage/' . $related->images->first()->image_url) }}"
+                                            alt="{{ $related->name }}"
+                                            class="w-full h-full object-cover z-10"
+                                        />
+                                    @else
+                                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-sm text-gray-500">
+                                            No Image Available
+                                        </div>
+                                    @endif
+                                    <div class="absolute inset-0 border border-luxury-gold/0 group-hover:border-luxury-gold/10 m-4 transition-all duration-700 z-20"></div>
+                                </div>
+                                <div class="mt-10 text-center space-y-3">
+                                    <p class="text-[8px] text-luxury-gold font-bold tracking-[0.5em] uppercase">{{ $related->brand->name ?? 'Unknown Brand' }}</p>
+                                    <h3 class="font-serif text-2xl font-light group-hover:italic transition-all duration-500">{{ $related->name }}</h3>
+                                    <p class="text-[9px] text-luxury-charcoal font-medium tracking-widest">${{ number_format($related->variants->first()->price ?? 0, 0, '.', ',') }}.00</p>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-20">
+                        <p class="font-serif italic text-2xl text-luxury-charcoal/30">No related fragrances available.</p>
+                    </div>
+                @endif
+            </div>
+        </section>
+    </div>
+@endif
 @endsection
