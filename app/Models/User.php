@@ -16,6 +16,10 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    protected $attributes = [
+        'role' => 'customer',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *

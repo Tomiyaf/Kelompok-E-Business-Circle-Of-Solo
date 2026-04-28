@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', config('app.name', "L'ESSENCE"))</title>
+    <title>@yield('title', config('app.name', "Sanctum"))</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,12 +42,18 @@
             ['name' => 'Contact', 'route' => 'contact', 'active' => fn () => request()->routeIs('contact')],
         ];
 
-        $dashboardRoute = auth()->check() && auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard');
+        $dashboardRoute = auth()->check() && auth()->user()->role === 'admin' ? route('admin.dashboard') : null;
+        $cartRoute = auth()->check() ? route('cart.index') : route('login');
+        $cartCount = auth()->check()
+            ? \App\Models\CartItem::query()
+                ->whereHas('cart', fn ($query) => $query->where('user_id', auth()->id()))
+                ->sum('quantity')
+            : 0;
     @endphp
 
-    <nav class="fixed top-6 left-6 right-6 z-50 h-20 px-8 md:px-12 flex items-center justify-between rounded-full bg-white/40 border border-white/20 shadow-2xl backdrop-blur-2xl transition-all duration-500">
-        <a href="{{ route('home') }}" class="text-xl md:text-2xl font-light tracking-[0.4em] font-serif uppercase">
-            L'ESSENCE
+    <nav class="fixed top-6 left-6 right-6 z-50 h-20 px-8 md:px-12 flex items-center justify-between rounded-full glass-nav">
+        <a href="{{ route('home') }}" class="text-xl md:text-2xl font-light tracking-[0.4em] font-serif uppercase text-luxury-charcoal">
+            Sanctum
         </a>
 
         <div class="hidden md:flex items-center space-x-12">
@@ -56,51 +62,59 @@
                     $active = $link['active']();
                 @endphp
                 <a href="{{ route($link['route']) }}"
-                   class="text-[9px] uppercase tracking-[0.3em] font-medium transition-all duration-500 hover:text-[var(--color-secondary)] relative group {{ $active ? 'text-[var(--color-secondary)]' : 'text-[var(--color-accent)]/60' }}">
+                   class="text-[9px] uppercase tracking-[0.3em] font-medium transition-all duration-500 hover:text-luxury-gold relative group {{ $active ? 'text-luxury-gold' : 'text-luxury-charcoal/60' }}">
                     {{ $link['name'] }}
-                    <span class="absolute -bottom-1 left-0 h-[1px] bg-[var(--color-secondary)] transition-all duration-500 group-hover:w-full {{ $active ? 'w-full' : 'w-0' }}"></span>
+                    <span class="absolute -bottom-1 left-0 h-[1px] bg-luxury-gold transition-all duration-500 group-hover:w-full {{ $active ? 'w-full' : 'w-0' }}"></span>
                 </a>
             @endforeach
         </div>
 
         <div class="hidden md:flex items-center space-x-6">
-            <button type="button" class="hover:text-[var(--color-secondary)] transition-all duration-300 transform hover:scale-110" aria-label="Search">
+            <button type="button" class="hover:text-luxury-gold transition-all duration-300 transform hover:scale-110 text-luxury-charcoal" aria-label="Search">
                 <i data-lucide="search" class="w-[18px] h-[18px]" style="stroke-width:1"></i>
             </button>
 
-            <button type="button" class="hover:text-[var(--color-secondary)] transition-all duration-300 transform hover:scale-110 relative group" aria-label="Cart">
+            <a href="{{ $cartRoute }}" class="hover:text-luxury-gold transition-all duration-300 transform hover:scale-110 relative group text-luxury-charcoal" aria-label="Cart">
                 <i data-lucide="shopping-bag" class="w-[18px] h-[18px]" style="stroke-width:1"></i>
-                <span class="absolute -top-1 -right-2 w-4 h-4 bg-[var(--color-secondary)] text-white text-[8px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">0</span>
-            </button>
+                @if($cartCount > 0)
+                    <span class="absolute -top-1 -right-2 w-4 h-4 bg-luxury-gold text-white text-[8px] rounded-full flex items-center justify-center">
+                        {{ $cartCount }}
+                    </span>
+                @endif
+            </a>
+
+            <div class="w-px h-4 bg-luxury-charcoal/20"></div>
 
             @auth
-                <a href="{{ $dashboardRoute }}" class="text-[9px] uppercase tracking-[0.22em] font-semibold text-[var(--color-accent)]/70 hover:text-[var(--color-secondary)] transition-colors">
-                    Dashboard
-                </a>
-                <form method="POST" action="{{ route('logout') }}">
+                @if($dashboardRoute)
+                    <a href="{{ $dashboardRoute }}" class="text-[9px] uppercase tracking-[0.22em] font-semibold text-luxury-charcoal/70 hover:text-luxury-gold transition-colors whitespace-nowrap">
+                        Dashboard
+                    </a>
+                @endif
+                <form method="POST" action="{{ route('logout') }}" class="inline-flex items-center">
                     @csrf
-                    <button type="submit" class="text-[9px] uppercase tracking-[0.22em] font-semibold text-[var(--color-accent)]/70 hover:text-[var(--color-secondary)] transition-colors">
+                    <button type="submit" class="inline-flex items-center text-[9px] uppercase tracking-[0.22em] font-semibold text-luxury-charcoal/70 hover:text-luxury-gold transition-colors whitespace-nowrap leading-none">
                         Logout
                     </button>
                 </form>
             @else
-                <a href="{{ route('login') }}" class="text-[9px] uppercase tracking-[0.22em] font-semibold text-[var(--color-accent)]/70 hover:text-[var(--color-secondary)] transition-colors">
+                <a href="{{ route('login') }}" class="text-[9px] uppercase tracking-[0.22em] font-semibold text-luxury-charcoal/70 hover:text-luxury-gold transition-colors whitespace-nowrap">
                     Sign In
                 </a>
                 @if(Route::has('register'))
-                    <a href="{{ route('register') }}" class="text-[9px] uppercase tracking-[0.22em] font-semibold text-[var(--color-accent)]/70 hover:text-[var(--color-secondary)] transition-colors">
+                    <a href="{{ route('register') }}" class="text-[9px] uppercase tracking-[0.22em] font-semibold px-4 py-2 border border-luxury-charcoal/30 text-luxury-charcoal/70 hover:border-luxury-gold hover:text-luxury-gold transition-all duration-300 whitespace-nowrap">
                         Register
                     </a>
                 @endif
             @endauth
         </div>
 
-        <button class="md:hidden text-[var(--color-accent)] p-2 rounded-full hover:bg-black/5 transition-colors" @click="isOpen = !isOpen" aria-label="Toggle menu">
+        <button class="md:hidden text-luxury-charcoal p-2 rounded-full hover:bg-black/5 transition-colors" @click="isOpen = !isOpen" aria-label="Toggle menu">
             <i data-lucide="menu" class="w-5 h-5" style="stroke-width:1" x-show="!isOpen" x-cloak></i>
             <i data-lucide="x" class="w-5 h-5" style="stroke-width:1" x-show="isOpen" x-cloak></i>
         </button>
 
-        <div class="md:hidden overflow-hidden bg-[#f8f8f3] absolute top-20 left-0 w-full border-t border-gray-100"
+        <div class="md:hidden overflow-hidden bg-luxury-cream absolute top-20 left-0 w-full border-t border-luxury-gold/10"
              x-show="isOpen"
              x-cloak
              x-transition:enter="transition ease-out duration-300"
@@ -113,21 +127,29 @@
                 @foreach($navLinks as $link)
                     <a href="{{ route($link['route']) }}"
                        @click="isOpen = false"
-                       class="text-xl font-serif text-[var(--color-accent)] hover:text-[var(--color-secondary)] tracking-[0.2em] uppercase">
+                       class="text-xl font-serif text-luxury-charcoal hover:text-luxury-gold tracking-[0.2em] uppercase">
                         {{ $link['name'] }}
                     </a>
                 @endforeach
 
+                <a href="{{ $cartRoute }}" @click="isOpen = false" class="text-xl font-serif text-luxury-charcoal hover:text-luxury-gold tracking-[0.2em] uppercase">
+                    Shopping Bag
+                </a>
+
+                <div class="w-12 h-px bg-luxury-charcoal/20"></div>
+
                 @auth
-                    <a href="{{ $dashboardRoute }}" class="text-sm uppercase tracking-[0.2em] text-[var(--color-accent)]/70">Dashboard</a>
-                    <form method="POST" action="{{ route('logout') }}" @submit="isOpen = false">
+                    @if($dashboardRoute)
+                        <a href="{{ $dashboardRoute }}" @click="isOpen = false" class="text-sm uppercase tracking-[0.2em] text-luxury-charcoal/70 hover:text-luxury-gold">Dashboard</a>
+                    @endif
+                    <form method="POST" action="{{ route('logout') }}" @submit="isOpen = false" class="w-full flex justify-center">
                         @csrf
-                        <button type="submit" class="text-sm uppercase tracking-[0.2em] text-[var(--color-accent)]/70">Logout</button>
+                        <button type="submit" class="inline-flex items-center text-sm uppercase tracking-[0.2em] text-luxury-charcoal/70 hover:text-luxury-gold leading-none">Logout</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="text-sm uppercase tracking-[0.2em] text-[var(--color-accent)]/70">Sign In</a>
+                    <a href="{{ route('login') }}" @click="isOpen = false" class="text-sm uppercase tracking-[0.2em] text-luxury-charcoal/70 hover:text-luxury-gold">Sign In</a>
                     @if(Route::has('register'))
-                        <a href="{{ route('register') }}" class="text-sm uppercase tracking-[0.2em] text-[var(--color-accent)]/70">Register</a>
+                        <a href="{{ route('register') }}" @click="isOpen = false" class="text-sm uppercase tracking-[0.2em] px-4 py-2 border border-luxury-charcoal/30 text-luxury-charcoal/70 hover:border-luxury-gold hover:text-luxury-gold transition-all duration-300">Register</a>
                     @endif
                 @endauth
             </div>
@@ -142,12 +164,12 @@
         @endif
     </main>
 
-    <footer class="w-full px-6 md:px-12 py-8 flex flex-col md:flex-row justify-between items-center text-[9px] uppercase tracking-[0.3em] opacity-40 border-t border-[var(--color-secondary)]/10 mt-auto bg-[#f8f8f3] relative z-10">
-        <div>© 2026 L'Essence Reseller</div>
+    <footer class="w-full px-6 md:px-12 py-8 flex flex-col md:flex-row justify-between items-center text-[9px] uppercase tracking-[0.3em] opacity-40 border-t border-luxury-gold/10 mt-auto bg-luxury-cream relative z-10">
+        <div>© 2026 Sanctum Reseller</div>
         <div class="flex space-x-8 mt-4 md:mt-0">
-            <a href="#" class="hover:text-[var(--color-secondary)] transition-colors">Instagram</a>
-            <a href="#" class="hover:text-[var(--color-secondary)] transition-colors">Pinterest</a>
-            <a href="#" class="hover:text-[var(--color-secondary)] transition-colors">Legal</a>
+            <a href="#" class="hover:text-luxury-gold transition-colors">Instagram</a>
+            <a href="#" class="hover:text-luxury-gold transition-colors">Pinterest</a>
+            <a href="#" class="hover:text-luxury-gold transition-colors">Legal</a>
         </div>
     </footer>
 </div>

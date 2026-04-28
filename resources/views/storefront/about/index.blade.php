@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', "About - L'ESSENCE")
+@section('title', "About - Sanctum")
 
 @section('content')
     {{-- TEAM NOTE: Halaman ini masih DUMMY untuk validasi layout storefront. --}}
