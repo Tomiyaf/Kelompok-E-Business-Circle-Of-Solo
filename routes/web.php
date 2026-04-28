@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ScentController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StorefrontController;
 use Illuminate\Support\Facades\Route;
@@ -21,7 +22,7 @@ Route::get('/product/{product}', [StorefrontController::class, 'detail'])->name(
 Route::get('/about', [StorefrontController::class, 'about'])->name('about');
 Route::get('/contact', [StorefrontController::class, 'contact'])->name('contact');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::prefix('admin')->name('admin.')->group(function (): void {
@@ -45,6 +46,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     });
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+    Route::patch('/cart/items/{cartItem}', [CartController::class, 'update'])->name('cart.items.update');
+    Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.items.destroy');
 });
 
 Route::middleware('auth')->group(function () {

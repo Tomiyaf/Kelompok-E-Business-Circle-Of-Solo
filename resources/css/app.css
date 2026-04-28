@@ -1,18 +1,116 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-    --color-primary: #0f0f0f;
-    --color-secondary: #d4af37;
-    --color-background: #f8f8f8;
+    --color-primary: #1a1a1a;
+    --color-secondary: #c5a059;
+    --color-background: #fdfbf7;
     --color-accent: #2c2c2c;
-    --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
     --font-serif: "Playfair Display", ui-serif, Georgia, serif;
 }
 
-body {
-    font-family: var(--font-sans);
-    background-color: var(--color-background);
-    color: var(--color-primary);
+@layer base {
+    body {
+        @apply bg-luxury-cream text-luxury-charcoal antialiased font-sans overflow-x-hidden selection:bg-luxury-gold selection:text-white;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        @apply font-serif font-light tracking-tight;
+    }
+
+    .luxury-button {
+        @apply relative px-10 py-5 bg-luxury-charcoal text-white font-medium uppercase tracking-[0.3em] text-[9px] transition-all duration-700 hover:bg-luxury-gold hover:tracking-[0.4em] shadow-lg hover:shadow-luxury-gold/20;
+    }
+
+    .glass-nav {
+        @apply bg-luxury-cream/60 backdrop-blur-xl border-b border-luxury-gold/10;
+    }
+}
+
+/* Input styling untuk auth pages - hanya border-bottom */
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    all: revert;
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid rgba(26, 26, 26, 0.2);
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0.75rem 0;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: #c5a059;
+}
+
+.animate-fade-in {
+    animation: fadeIn 1.2s cubic-bezier(0, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    content: "";
+    opacity: 0.03;
+    z-index: 9999;
+    pointer-events: none;
+    background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+}
+
+.pattern-dots {
+    background-image: radial-gradient(
+        rgba(197, 160, 89, 0.15) 1px,
+        transparent 0
+    );
+    background-size: 30px 30px;
+}
+
+.serif-italic {
+    font-family: "Playfair Display", serif;
+    font-style: italic;
+}
+
+/* Custom Scrollbar for Luxury Aesthetic */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(26, 26, 26, 0.1);
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(197, 160, 89, 0.5);
 }
