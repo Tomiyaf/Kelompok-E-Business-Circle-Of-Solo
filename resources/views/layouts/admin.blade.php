@@ -56,7 +56,7 @@
         class="fixed inset-y-0 left-0 bg-[var(--color-primary)] border-r border-[#2C2C2C] text-white w-60 z-50 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col shrink-0">
         <div class="p-8 flex items-center gap-3 border-b border-[#2C2C2C]">
             <div class="w-8 h-8 bg-[var(--color-secondary)] rounded-sm rotate-45 shrink-0"></div>
-            <span class="text-[var(--color-secondary)] font-bold text-lg tracking-widest uppercase ml-2">Parfum</span>
+            <span class="text-[var(--color-secondary)] font-bold text-lg tracking-widest uppercase ml-2">Sanctum</span>
         </div>
 
         <nav class="flex-1 px-4 py-2 overflow-y-auto mt-2">

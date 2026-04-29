@@ -79,8 +79,9 @@
                             <div class="relative aspect-[4/5] bg-luxury-nude/30 overflow-hidden flex items-center justify-center p-8 group-hover:bg-luxury-clay/20 transition-all duration-700 rounded-sm">
                                 <div class="absolute inset-0 border border-luxury-gold/5 m-4"></div>
                                 @if ($product->images->isNotEmpty())
+                                    @php($homeImageUrl = $product->images->first()->image_url)
                                     <img
-                                        src="{{ asset('storage/' . $product->images->first()->image_url) }}"
+                                        src="{{ \Illuminate\Support\Str::startsWith($homeImageUrl, ['http://', 'https://', '/']) ? $homeImageUrl : asset('storage/' . ltrim($homeImageUrl, '/')) }}"
                                         alt="{{ $product->name }}"
                                         class="w-full h-full object-cover shadow-[0_30px_60px_-12px_rgba(0,0,0,0.15)] transition-all duration-[1s] group-hover:scale-105 group-hover:-translate-y-2"
                                     />
