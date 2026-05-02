@@ -253,12 +253,40 @@
 						</template>
 
 						<div>
-							<label class="block text-[10px] font-bold uppercase tracking-widest text-[#2C2C2C] mb-1 transition-colors">Assign Scents (Multi-select)</label>
-							<select name="scent_ids[]" multiple x-model="selectedScentIds" class="w-full px-3 py-2.5 border-b-2 border-gray-200 bg-gray-50/50 focus:outline-none focus:border-[var(--color-primary)] focus:bg-white transition-colors sm:text-sm h-24">
-								@foreach($scents as $scent)
-									<option value="{{ $scent->id }}">{{ $scent->name }}</option>
-								@endforeach
-							</select>
+							<label class="block text-[10px] font-bold uppercase tracking-widest text-[#2C2C2C] mb-2 transition-colors">Assign Scents</label>
+							<div class="mb-2">
+								<input type="text"
+									   placeholder="Search scents..."
+									   x-model="scentSearch"
+									   class="w-full px-3 py-2.5 border-b-2 border-gray-200 bg-white focus:outline-none focus:border-[var(--color-primary)] transition-colors sm:text-sm" />
+							</div>
+							<template x-if="selectedScentIds.length > 0">
+								<div class="flex flex-wrap gap-2 mb-3">
+									<template x-for="scentId in selectedScentIds" :key="`chip-${scentId}`">
+										<button type="button"
+												class="inline-flex items-center gap-2 px-3 py-1 text-[9px] uppercase tracking-widest bg-[#0F0F0F] text-white"
+												@click="toggleScent(scentId)">
+												<span x-text="scentNameById(scentId)"></span>
+												<span class="text-[10px]">×</span>
+										</button>
+									</template>
+								</div>
+							</template>
+							<div class="max-h-48 overflow-y-auto border border-gray-200 bg-white">
+								<template x-for="scent in filteredScents()" :key="`scent-${scent.id}`">
+									<label class="flex items-center gap-3 px-3 py-2 border-b border-gray-100 text-[10px] uppercase tracking-widest cursor-pointer hover:bg-gray-50">
+										<input type="checkbox"
+												name="scent_ids[]"
+												:value="scent.id"
+												x-model="selectedScentIds"
+												class="w-3.5 h-3.5" />
+										<span x-text="scent.name"></span>
+									</label>
+								</template>
+								<template x-if="filteredScents().length === 0">
+									<p class="px-3 py-3 text-xs text-gray-400">No scents found.</p>
+								</template>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -319,6 +347,8 @@
 				searchTerm: '',
 				products: config.products || [],
 				productMap: config.productMap || {},
+				allScents: config.scents || [],
+				scentSearch: '',
 				isModalOpen: false,
 				isSubmitting: false,
 				modalTitle: 'Add Product',
@@ -361,6 +391,23 @@
 					}
 				},
 
+				filteredScents() {
+					const keyword = (this.scentSearch || '').toLowerCase();
+					if (!keyword) {
+						return this.allScents;
+					}
+					return this.allScents.filter(scent => (scent.name || '').toLowerCase().includes(keyword));
+				},
+
+				scentNameById(id) {
+					const found = this.allScents.find(scent => String(scent.id) === String(id));
+					return found ? found.name : id;
+				},
+
+				toggleScent(id) {
+					this.selectedScentIds = this.selectedScentIds.filter(item => String(item) !== String(id));
+				},
+
 				filteredProducts() {
 					if (!this.searchTerm) {
 						return this.products;
@@ -386,6 +433,7 @@
 					this.brandId = '';
 					this.categoryId = '';
 					this.selectedScentIds = [];
+					this.scentSearch = '';
 					this.variants = [this.defaultVariant()];
 					this.existingImages = [];
 					this.removeImageIds = [];
@@ -409,6 +457,7 @@
 					this.brandId = product.brand_id ? String(product.brand_id) : '';
 					this.categoryId = product.category_id ? String(product.category_id) : '';
 					this.selectedScentIds = (product.scent_ids || []).map(String);
+					this.scentSearch = '';
 					this.variants = (product.variants || []).length > 0
 						? product.variants.map(v => ({name: v.name || '', price: v.price || '', stock: v.stock || ''}))
 						: [this.defaultVariant()];

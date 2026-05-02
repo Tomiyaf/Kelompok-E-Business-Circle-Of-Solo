@@ -13,7 +13,7 @@ class CategoryController extends Controller
 {
     public function index(Request $request): View|JsonResponse
     {
-        $categories = Category::query()->orderBy('name')->paginate(15)->withQueryString();
+        $categories = Category::query()->orderBy('name', 'asc')->paginate(15)->withQueryString();
 
         if ($request->expectsJson()) {
             return response()->json($categories);

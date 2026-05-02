@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
+use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
@@ -129,6 +130,10 @@ class ProductController extends Controller
             $product->scents()->sync($validated['scent_ids'] ?? []);
 
             if (array_key_exists('variants', $validated)) {
+                $variantIds = $product->variants()->pluck('id');
+                if ($variantIds->isNotEmpty()) {
+                    CartItem::query()->whereIn('product_variant_id', $variantIds)->delete();
+                }
                 $product->variants()->delete();
                 foreach ($validated['variants'] as $variant) {
                     $product->variants()->create([
@@ -176,6 +181,10 @@ class ProductController extends Controller
 
             $product->images()->delete();
             $product->scents()->detach();
+            $variantIds = $product->variants()->pluck('id');
+            if ($variantIds->isNotEmpty()) {
+                CartItem::query()->whereIn('product_variant_id', $variantIds)->delete();
+            }
             $product->variants()->delete();
             $product->delete();
         });

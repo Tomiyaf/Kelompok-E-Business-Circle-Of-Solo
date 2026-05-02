@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->nullable()->constrained('orders');
-            $table->foreignId('product_variant_id')->nullable()->constrained('product_variants');
-            $table->integer('quantity')->nullable();
-            $table->decimal('price', 15, 2)->nullable();
+            $table->foreignId('order_id')->constrained('orders');
+            $table->foreignId('product_variant_id')->constrained('product_variants');
+            $table->string('product_name');
+            $table->string('variant_name')->nullable();
+            $table->integer('quantity')->default(1);
+            $table->decimal('unit_price', 15, 2)->default(0);
+            $table->decimal('subtotal', 15, 2)->default(0);
         });
     }
 
